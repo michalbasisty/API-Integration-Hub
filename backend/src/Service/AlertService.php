@@ -7,6 +7,7 @@ use App\Entity\Metric;
 use App\Entity\Monitor;
 use App\Repository\AlertRepository;
 use App\Repository\MetricRepository;
+use App\Service\NotificationService;
 use Doctrine\ORM\EntityManagerInterface;
 
 class AlertService
@@ -15,6 +16,7 @@ class AlertService
         private EntityManagerInterface $em,
         private AlertRepository $alerts,
         private MetricRepository $metrics,
+        private NotificationService $notificationService,
     ) {}
 
     public function checkForAlerts(Monitor $monitor, Metric $metric): void
@@ -106,6 +108,14 @@ class AlertService
 
         $this->em->persist($alert);
         $this->em->flush();
+
+        // Send email notification for alerts
+        try {
+            $this->notificationService->sendAlertNotification($alert);
+        } catch (\Exception $e) {
+            // Log but don't fail - email issues shouldn't stop monitoring
+            error_log("Failed to send alert notification: " . $e->getMessage());
+        }
 
         return $alert;
     }

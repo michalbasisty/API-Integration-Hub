@@ -19,19 +19,21 @@
         "doctrine/doctrine-bundle": "^2.11",
         "doctrine/migrations": "^3.7",
         "doctrine/dbal": "^3.7",
-        "predis/predis": "^2.0"
-    ,
+        "predis/predis": "^2.0",
         "symfony/uid": "^7.0",
         "phpdocumentor/reflection-docblock": "^5.6",
         "phpstan/phpdoc-parser": "^2.3",
         "symfony/property-access": "^7.3",
         "symfony/property-info": "^7.3",
         "symfony/serializer": "^7.3",
-        "symfony/runtime": "^7.3"
+        "symfony/runtime": "^7.3",
+        "symfony/mailer": "^7.0"
     },
     "require-dev": {
         "symfony/debug-bundle": "^7.0",
-        "symfony/var-dumper": "^7.0"
+        "symfony/var-dumper": "^7.0",
+        "phpunit/phpunit": "^12.4",
+        "symfony/phpunit-bridge": "^7.3"
     },
     "autoload": {
         "psr-4": {
