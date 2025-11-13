@@ -15,6 +15,8 @@
         "symfony/http-foundation": "^7.0",
         "symfony/routing": "^7.0",
         "symfony/yaml": "^7.0",
+        "symfony/security-bundle": "^7.0",
+        "symfony/security-core": "^7.0",
         "doctrine/orm": "^2.17",
         "doctrine/doctrine-bundle": "^2.11",
         "doctrine/migrations": "^3.7",
@@ -27,7 +29,8 @@
         "symfony/property-info": "^7.3",
         "symfony/serializer": "^7.3",
         "symfony/runtime": "^7.3",
-        "symfony/mailer": "^7.0"
+        "symfony/mailer": "^7.0",
+        "lexik/jwt-authentication-bundle": "^2.19"
     },
     "require-dev": {
         "symfony/debug-bundle": "^7.0",

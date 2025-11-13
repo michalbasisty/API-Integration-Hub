@@ -1,7 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { ToastComponent } from './components/toast/toast.component';
 import { CommonModule } from '@angular/common';
+import { AuthService } from './services/auth.service';
+import { User } from './services/auth.service';
 
 @Component({
   selector: 'app-root',
@@ -9,7 +11,7 @@ import { CommonModule } from '@angular/common';
   imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, ToastComponent],
   template: `
     <div class="app-container">
-      <header class="navbar">
+      <header class="navbar" *ngIf="showNavigation">
         <div class="navbar-brand">
           <h1>🚀 PulseAPI</h1>
           <p>API Performance Monitor</p>
@@ -33,16 +35,20 @@ import { CommonModule } from '@angular/common';
           </a>
         </nav>
         <div class="navbar-actions">
+          <div class="user-info" *ngIf="currentUser">
+            <span class="user-name">{{ currentUser.firstName }} {{ currentUser.lastName }}</span>
+            <button class="action-btn logout-btn" title="Logout" (click)="logout()">🚪</button>
+          </div>
           <button class="action-btn" title="Settings">⚙️</button>
           <button class="action-btn" title="Help">❓</button>
         </div>
       </header>
-      
+
       <main class="main-content">
         <router-outlet></router-outlet>
       </main>
-      
-      <footer class="footer">
+
+      <footer class="footer" *ngIf="showNavigation">
         <p>&copy; 2025 PulseAPI - AI-Powered API Monitor</p>
       </footer>
       <app-toast></app-toast>
@@ -149,6 +155,20 @@ import { CommonModule } from '@angular/common';
     .navbar-actions {
       display: flex;
       gap: 0.5rem;
+      align-items: center;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-right: 0.5rem;
+    }
+
+    .user-name {
+      color: white;
+      font-weight: 500;
+      font-size: 0.9rem;
     }
 
     .action-btn {
@@ -165,6 +185,15 @@ import { CommonModule } from '@angular/common';
     .action-btn:hover {
       background: rgba(255, 255, 255, 0.2);
       transform: scale(1.05);
+    }
+
+    .logout-btn {
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .logout-btn:hover {
+      background: rgba(255, 255, 255, 0.25);
+      color: #ff6b6b;
     }
 
     .footer p {
@@ -197,6 +226,22 @@ import { CommonModule } from '@angular/common';
     }
   `]
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   title = 'PulseAPI';
+  currentUser: User | null = null;
+  showNavigation = false;
+
+  constructor(private authService: AuthService) {}
+
+  ngOnInit(): void {
+    this.authService.currentUser$.subscribe(user => {
+      this.currentUser = user;
+      this.showNavigation = this.authService.isAuthenticated;
+    });
+  }
+
+  logout(): void {
+    this.authService.logout();
+    // Navigation will be handled by the auth guard when user state changes
+  }
 }
