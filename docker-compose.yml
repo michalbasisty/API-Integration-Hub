@@ -1,0 +1,90 @@
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: pulseapi-postgres
+    environment:
+      POSTGRES_DB: pulseapi
+      POSTGRES_USER: pulseapi
+      POSTGRES_PASSWORD: dev_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - pulseapi-network
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: pulseapi-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - pulseapi-network
+
+  # Symfony Backend API
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: pulseapi-backend
+    environment:
+      DATABASE_URL: postgresql://pulseapi:dev_password@postgres:5432/pulseapi
+      REDIS_URL: redis://redis:6379
+      APP_ENV: dev
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - pulseapi-network
+    volumes:
+      - ./backend:/app
+    command: >
+      sh -c "
+        php bin/console doctrine:schema:create --no-interaction || echo 'Schema already exists' &&
+        echo '*/1 * * * * php /app/bin/console app:monitor:check' > /etc/crontabs/root &&
+        crond -f -l 8
+      "
+
+  # Go AI Service
+  ai-service:
+    build:
+      context: ./ai-service
+      dockerfile: Dockerfile
+    container_name: pulseapi-ai-service
+    environment:
+      BACKEND_URL: http://backend:8000
+      REDIS_URL: redis://redis:6379
+    ports:
+      - "8001:8001"
+    depends_on:
+      - backend
+      - redis
+    networks:
+      - pulseapi-network
+
+  # Angular Web Dashboard
+  web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    container_name: pulseapi-web
+    ports:
+      - "4200:80"
+    depends_on:
+      - backend
+    networks:
+      - pulseapi-network
+    volumes:
+      - ./web:/app
+
+volumes:
+  postgres_data:
+
+
+networks:
+  pulseapi-network:
+    driver: bridge

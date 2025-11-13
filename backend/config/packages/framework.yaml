@@ -1,0 +1,5 @@
+framework:
+  secret: 'dev_secret'
+  http_method_override: false
+  router:
+    utf8: true

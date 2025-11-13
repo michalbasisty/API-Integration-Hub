@@ -1,0 +1,17 @@
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+
+  App\:
+    resource: '../src/'
+
+  App\Interface\Http\:
+    resource: '../src/Interface/Http/'
+    tags: ['controller.service_arguments']
+
+  Doctrine\ORM\EntityManagerInterface: '@doctrine.orm.default_entity_manager'
+
+  Predis\Client:
+    arguments:
+      - '%env(REDIS_URL)%'
